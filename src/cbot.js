@@ -2,7 +2,7 @@ const cleverbot = require("cleverbot.io");
 
 const bot = new cleverbot(process.env.CLEVERBOT_API_USER, process.env.CLEVERBOT_API_KEY);
 
-let cleverbot_sessions = {};
+let cleverbot_sessions = null;
 
 const startSession = () =>{
   return new Promise((resolve, reject)=>{
@@ -17,19 +17,19 @@ const startSession = () =>{
 
 
 const setSession = async(user)=>{
-  let session = cleverbot_sessions[user];
+  let session = cleverbot_sessions;
 
   if(!session){
     session = await startSession(user);
-    cleverbot_sessions[user] = session;
+    cleverbot_sessions = session;
   }else{
     bot.setNick(session);
   }
 };
 
 
-export const askCleverbot = async (question, user) => {
-  await setSession(user);
+export const askCleverbot = async (question) => {
+  await setSession();
   return new Promise((resolve, reject) => {
     bot.ask(question, function (err, response) {
       if(err){

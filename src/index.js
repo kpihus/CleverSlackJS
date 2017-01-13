@@ -33,7 +33,7 @@ slackbot.message(function (msg) {
     const question = msg.text.replace(botid, '');
     console.log('QUESTION', question);
     lastChannel = msg.channel;
-    askCleverbot(question, msg.user)
+    askCleverbot(question)
       .then((answer)=>{
       const params = {token: token, text: answer, channel: msg.channel, username: 'Swat Bot'};
       slack.chat.postMessage(params, function (err, res) {
