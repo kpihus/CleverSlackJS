@@ -2,40 +2,22 @@ const cleverbot = require("cleverbot.io");
 
 const bot = new cleverbot(process.env.CLEVERBOT_API_USER, process.env.CLEVERBOT_API_KEY);
 
-let cleverbot_sessions = null;
+let nickname = "Clever";
 
-const startSession = () =>{
-  return new Promise((resolve, reject)=>{
-    bot.create(function (err, session) {
+export const askCleverbot = async(question) => {
+
+  return new Promise((resolve) => {
+      bot.setNick(nickname);
+    bot.create(function (err) {
       if(err){
-        reject(err);
+        resolve('Sorry, something bad happened');
       }
-      resolve(session);
-    });
-  })
-};
-
-
-const setSession = async(user)=>{
-  let session = cleverbot_sessions;
-
-  if(!session){
-    session = await startSession(user);
-    cleverbot_sessions = session;
-  }else{
-    bot.setNick(session);
-  }
-};
-
-
-export const askCleverbot = async (question) => {
-  await setSession();
-  return new Promise((resolve, reject) => {
-    bot.ask(question, function (err, response) {
-      if(err){
-        reject(err);
-      }
-      resolve(response)
+      bot.ask(question, function (err, response) {
+        if (err) {
+          resolve('Sorry, something really bad happened');
+        }
+        resolve(response)
+      });
     });
   })
 };
