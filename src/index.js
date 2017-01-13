@@ -7,6 +7,8 @@ const slackbot = slack.rtm.client();
 const token = process.env.SLACK_TOKEN;
 const botid = process.env.SLACK_BOTID;
 
+let lastChannel = null;
+
 
 // do something with the rtm.start payload
 slackbot.started(function (payload) {
@@ -27,13 +29,13 @@ slackbot.started(function (payload) {
 
 slackbot.message(function (msg) {
   console.log('MESSAGE', msg);
-  if (msg.text.indexOf(botid) > -1) {
+  if (msg.text && msg.text.indexOf(botid) > -1) {
     const question = msg.text.replace(botid, '');
     console.log('QUESTION', question);
-
+    lastChannel = msg.channel;
     askCleverbot(question, msg.user)
       .then((answer)=>{
-      const params = {token: token, text: answer, channel: msg.channel};
+      const params = {token: token, text: answer, channel: msg.channel, username: 'Swat Bot'};
       slack.chat.postMessage(params, function (err, res) {
         console.log('DATA', res)
       })
@@ -44,6 +46,13 @@ slackbot.message(function (msg) {
   }
 });
 
+process.on('uncaughtException', function (err) {
+  console.log('===>UNEXPECTED ERROR OCCURRED', err);
+  const params = {token: token, text: 'Oops.. i have a bug in my code :(', channel: lastChannel, username: 'Swat Bot'};
+  slack.chat.postMessage(params, function (err, res) {
+    console.log('DATA', res)
+  })
+});
 
 // start listening to the slack team associated to the token
 slackbot.listen({token: token});
